@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <title>
+        js调用java
+    </title>
+</head>
+
+<body>
+<p id="pLog">jf-test:</p>
+<div>
+    <input type="button" value="发消息给Native" onclick="testClick();" />
+</div>
+</body>
+<script>
+function testClick(){
+    window.WebViewJavascriptBridge.callHandler('webHandler',{'param': '中文测试'},function(responseData){
+        document.getElementById("pLog").innerHTML = "send get responseData from java, data = " + responseData;
+    });
+}
+
+function connectWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) {
+                callback(WebViewJavascriptBridge)
+            } else {
+                document.addEventListener(
+                    'WebViewJavascriptBridgeReady'
+                    , function() {
+                        callback(WebViewJavascriptBridge)
+                    },
+                    false
+                );
+            }
+        }
+        connectWebViewJavascriptBridge(function(bridge) {
+            bridge.init(function(message, responseCallback) {
+                console.log('JS got a message', message);
+                var data = {
+                    'Javascript Responds': '测试中文!'
+                };
+                if (responseCallback) {
+                    console.log('JS responding with', data);
+                    responseCallback(data);
+                }
+            });
+            bridge.registerHandler("functionInJs", function(data, responseCallback) {
+                document.getElementById("pLog").innerHTML = ("data from Java: = " + data);
+                if (responseCallback) {
+                    var responseData = "Javascript Says Right back aka!";
+                    responseCallback(responseData);
+                }
+            });
+        })
+</script>
+
+</html>
